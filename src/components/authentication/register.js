@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { FaArrowLeft } from 'react-icons/fa';
 
-
 function Register() {
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState('customer');
@@ -16,67 +15,39 @@ function Register() {
   const [rcBook, setRcBook] = useState('');
   const [otpStep, setOtpStep] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
+  const [errors, setErrors] = useState({});
 
   const validateStep1 = () => {
+    const newErrors = {};
+
     if (age === '' || Number(age) <= 17 || Number(age) > 100) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Invalid age",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      return false;
+      newErrors.age = 'Age must be 18 or above.';
     }
 
     if (!/^\d{10}$/.test(phone)) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Phone number is invalid",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      return false;
+      newErrors.phone = 'Phone number must be 10 digits.';
     }
 
     if (password.trim().length < 6) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Password must be at least 6 characters",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      return false;
-    }
-
-    if (
+      newErrors.password = 'Password must be at least 6 characters.';
+    } else if (
       !/[A-Z]/.test(password) ||
       !/[!@#$%^&*(),.?":{}|<>]/.test(password) ||
       !/[0-9]/.test(password)
     ) {
-      Swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Password must contain at least one uppercase letter, one number, and one special character",
-        showConfirmButton: false,
-        timer: 2500
-      });
-      return false;
+      newErrors.password = 'Must include uppercase, number, and special character.';
     }
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
-
 
   const handleNextOrRegister = (e) => {
     e.preventDefault();
-
     if (!validateStep1()) return;
 
     if (userType === 'dealer') {
-      setOtpStep(true); // Show OTP UI
+      setOtpStep(true);
     } else {
       setStep(2);
     }
@@ -89,11 +60,10 @@ function Register() {
 
   const handleSubmitStep2 = (e) => {
     e.preventDefault();
-    setOtpStep(true); // Show OTP UI
+    setOtpStep(true);
   };
 
   const handleVerifyOtp = () => {
-    // You could add validation here if needed
     Swal.fire({
       position: "top-end",
       icon: "success",
@@ -119,23 +89,14 @@ function Register() {
                 <h3 className="mx-auto text-center">Register</h3>
               </div>
 
-              {/* OTP UI */}
               {otpStep ? (
                 <>
                   <h5 className="mb-3 text-center">OTP Verification</h5>
                   <p className="text-muted text-center">Enter the 6-digit code sent to your phone</p>
-
                   <Form.Group controlId="otpInput" className="mb-3 d-flex justify-content-center align-items-center gap-2">
-                    {/* Resend OTP link */}
-                    <a
-                      href="#"
-                      className="text-primary"
-                      style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}
-                    >
+                    <a href="#" className="text-primary" style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                       Resend OTP
                     </a>
-
-                    {/* OTP input */}
                     <div style={{ width: '200px' }}>
                       <Form.Control
                         type="text"
@@ -148,15 +109,12 @@ function Register() {
                       />
                     </div>
                   </Form.Group>
-
                   <div className="d-grid">
                     <Button variant="success" onClick={handleVerifyOtp}>
                       Verify OTP & Complete Registration
                     </Button>
                   </div>
                 </>
-
-
               ) : (
                 <Form onSubmit={step === 2 ? handleSubmitStep2 : handleNextOrRegister}>
                   {step === 1 && (
@@ -165,25 +123,19 @@ function Register() {
                       <Row>
                         <Col md={6}>
                           <Form.Group controlId="formName" className="mb-3">
-                            <Form.Label>
-                              Full Name<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Full Name<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control type="text" placeholder="Enter full name" required />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group controlId="formEmail" className="mb-3">
-                            <Form.Label>
-                              Email<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Email<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control type="email" placeholder="Enter email" required />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group controlId="formAge" className="mb-3">
-                            <Form.Label>
-                              Age<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Age<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control
                               type="number"
                               placeholder="Enter age"
@@ -191,13 +143,14 @@ function Register() {
                               onChange={(e) => setAge(e.target.value)}
                               required
                             />
+                            {errors.age && (
+                              <Form.Text className="text-danger">{errors.age}</Form.Text>
+                            )}
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group controlId="formPhone" className="mb-3">
-                            <Form.Label>
-                              Phone Number<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Phone Number<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control
                               type="number"
                               placeholder="Enter phone number"
@@ -205,21 +158,20 @@ function Register() {
                               onChange={(e) => setPhone(e.target.value)}
                               required
                             />
+                            {errors.phone && (
+                              <Form.Text className="text-danger">{errors.phone}</Form.Text>
+                            )}
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group controlId="formAddress" className="mb-3">
-                            <Form.Label>
-                              Address<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Address<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control as="textarea" rows={2} placeholder="Enter address" required />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group controlId="formPassword" className="mb-3">
-                            <Form.Label>
-                              Password<span style={{ color: 'red' }}>*</span>
-                            </Form.Label>
+                            <Form.Label>Password<span style={{ color: 'red' }}>*</span></Form.Label>
                             <Form.Control
                               type="password"
                               placeholder="Enter password"
@@ -227,6 +179,9 @@ function Register() {
                               onChange={(e) => setPassword(e.target.value)}
                               required
                             />
+                            {errors.password && (
+                              <Form.Text className="text-danger">{errors.password}</Form.Text>
+                            )}
                           </Form.Group>
                         </Col>
                         <Col md={12}>
@@ -265,9 +220,7 @@ function Register() {
                     <>
                       <h5 className="mt-4 mb-3">Vehicle Registration</h5>
                       <Form.Group controlId="formVehicleNo" className="mb-3">
-                        <Form.Label>
-                          Vehicle Number Plate<span style={{ color: 'red' }}>*</span>
-                        </Form.Label>
+                        <Form.Label>Vehicle Number Plate<span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
                           type="text"
                           placeholder="Enter vehicle number"
@@ -277,9 +230,7 @@ function Register() {
                         />
                       </Form.Group>
                       <Form.Group controlId="formLicenseNo" className="mb-3">
-                        <Form.Label>
-                          License Number<span style={{ color: 'red' }}>*</span>
-                        </Form.Label>
+                        <Form.Label>License Number<span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
                           type="text"
                           placeholder="Enter license number"
@@ -289,9 +240,7 @@ function Register() {
                         />
                       </Form.Group>
                       <Form.Group controlId="formRCBook" className="mb-3">
-                        <Form.Label>
-                          RC Book<span style={{ color: 'red' }}>*</span>
-                        </Form.Label>
+                        <Form.Label>RC Book<span style={{ color: 'red' }}>*</span></Form.Label>
                         <Form.Control
                           type="text"
                           placeholder="Enter RC number"
@@ -302,11 +251,7 @@ function Register() {
                       </Form.Group>
                       <Form.Label>Vehicle Type</Form.Label>
                       <div className="d-flex gap-3">
-                        <label
-                          htmlFor="twoWheeler"
-                          className="border rounded p-3 d-flex align-items-center justify-content-center gap-2 cursor-pointer"
-                          style={{ width: "250px" }}
-                        >
+                        <label htmlFor="twoWheeler" className="border rounded p-3 d-flex align-items-center justify-content-center gap-2 cursor-pointer" style={{ width: "250px" }}>
                           <Form.Check
                             type="radio"
                             name="vehicleType"
@@ -318,12 +263,7 @@ function Register() {
                           <i className="bi bi-bicycle" style={{ fontSize: "1.8rem" }}></i>
                           <div className="ms-2">Two Wheeler</div>
                         </label>
-
-                        <label
-                          htmlFor="fourWheeler"
-                          className="border rounded p-3 d-flex align-items-center justify-content-center gap-2 cursor-pointer"
-                          style={{ width: "250px" }}
-                        >
+                        <label htmlFor="fourWheeler" className="border rounded p-3 d-flex align-items-center justify-content-center gap-2 cursor-pointer" style={{ width: "250px" }}>
                           <Form.Check
                             type="radio"
                             name="vehicleType"
