@@ -22,7 +22,7 @@ function Login() {
 
                 <div className="d-grid">
                   <Button variant="primary" type="submit">
-                    Login
+                    Login <Link to="/home"></Link>
                   </Button>
                 </div>
 
